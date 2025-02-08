@@ -1,0 +1,40 @@
+pipeline {
+ environment {
+  registry = "zinebkourifa1/tp5devops"
+  registryCredential = 'e84cc746-5f84-408b-89af-f76158796813'
+  dockerImage = ''
+ }
+ agent any
+ stages {
+  stage('Cloning Git') {
+	steps {
+	git 'https://github.com/KourifaZineb/tp5'
+	}
+  }
+  stage('Building image') {
+	steps{
+	script {
+	dockerImage = docker.build("${registry}:${BUILD_NUMBER}", "-f src/main/webapp/Dockerfile src/main/webapp/")
+	}
+	}
+
+  }
+stage('Test image') {
+	steps{
+	script {
+
+	echo "Tests passed"
+	}
+	}
+  }
+  stage('Publish Image') {
+	steps{
+	script {
+	docker.withRegistry( '', registryCredential ) {
+	dockerImage.push()
+	}
+	}
+	}
+  }
+ }
+}
